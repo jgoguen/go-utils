@@ -69,9 +69,12 @@ func GetRuntimePath(path string) string {
 		return ""
 	}
 
-	candidatePath, err := pathutils.SanitizePath(filepath.Join(dir, path))
-	if err == nil {
-		return candidatePath
+	// We explicitly ignore the error here because SanitizePath only returns
+	// both a path and an error when the path doesn't exist. But we may be
+	// intentionally requesting the path of a file/directory not yet created.
+	runtimePath, _ := pathutils.SanitizePath(filepath.Join(dir, path))
+	if runtimePath != "" {
+		return runtimePath
 	}
 
 	return ""

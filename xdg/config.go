@@ -95,9 +95,12 @@ func GetConfigPath(path string) string {
 		return ""
 	}
 
-	fname, err := pathutils.SanitizePath(filepath.Join(dirs[0], path))
-	if err == nil {
-		return fname
+	// We explicitly ignore the error here because SanitizePath only returns
+	// both a path and an error when the path doesn't exist. But we may be
+	// intentionally requesting the path of a file/directory not yet created.
+	configPath, _ := pathutils.SanitizePath(filepath.Join(dirs[0], path))
+	if configPath != "" {
+		return configPath
 	}
 
 	return ""

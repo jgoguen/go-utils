@@ -97,8 +97,11 @@ func GetDataPath(path string) string {
 		return ""
 	}
 
-	dataPath, err := pathutils.SanitizePath(filepath.Join(dirs[0], path))
-	if err == nil {
+	// We explicitly ignore the error here because SanitizePath only returns
+	// both a path and an error when the path doesn't exist. But we may be
+	// intentionally requesting the path of a file/directory not yet created.
+	dataPath, _ := pathutils.SanitizePath(filepath.Join(dirs[0], path))
+	if dataPath != "" {
 		return dataPath
 	}
 

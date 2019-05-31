@@ -60,9 +60,9 @@ func GetCachePath(path string) string {
 	// We explicitly ignore the error here because SanitizePath only returns
 	// both a path and an error when the path doesn't exist. But we may be
 	// intentionally requesting the path of a file/directory not yet created.
-	candidatePath, _ := pathutils.SanitizePath(filepath.Join(dir, path))
-	if candidatePath != "" {
-		return candidatePath
+	cachePath, _ := pathutils.SanitizePath(filepath.Join(dir, path))
+	if cachePath != "" {
+		return cachePath
 	}
 
 	return ""
