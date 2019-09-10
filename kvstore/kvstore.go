@@ -11,7 +11,7 @@ import (
 	"github.com/peterbourgon/diskv"
 )
 
-var dbMap map[string]Database
+var dbMap = map[string]Database{}
 
 // OpenDB opens a Database connection. `name` may be an absolute path or a
 // directory name relative to the user XDG data directory
@@ -56,6 +56,10 @@ func OpenDB(name string) (Database, error) {
 }
 
 func (diskdb *diskKVStore) Load(key string) ([]byte, error) {
+	if diskdb.db == nil {
+		return nil, errors.New("Database has been closed")
+	}
+
 	diskdb.RLock()
 	defer diskdb.RUnlock()
 
@@ -63,6 +67,10 @@ func (diskdb *diskKVStore) Load(key string) ([]byte, error) {
 }
 
 func (diskdb *diskKVStore) Save(key string, value []byte) (string, error) {
+	if diskdb.db == nil {
+		return "", errors.New("Database has been closed")
+	}
+
 	var savedKey string
 	if key != "" {
 		savedKey = key
@@ -80,6 +88,10 @@ func (diskdb *diskKVStore) Save(key string, value []byte) (string, error) {
 }
 
 func (diskdb *diskKVStore) HasKey(key string) bool {
+	if diskdb.db == nil {
+		return false
+	}
+
 	diskdb.RLock()
 	defer diskdb.RUnlock()
 
@@ -87,6 +99,10 @@ func (diskdb *diskKVStore) HasKey(key string) bool {
 }
 
 func (diskdb *diskKVStore) Delete(key string) error {
+	if diskdb.db == nil {
+		return errors.New("Database has been closed")
+	}
+
 	diskdb.Lock()
 	defer diskdb.Unlock()
 
@@ -94,6 +110,10 @@ func (diskdb *diskKVStore) Delete(key string) error {
 }
 
 func (diskdb *diskKVStore) List() ([]string, error) {
+	if diskdb.db == nil {
+		return nil, errors.New("Database has been closed")
+	}
+
 	var keys []string
 
 	diskdb.RLock()
@@ -107,6 +127,13 @@ func (diskdb *diskKVStore) List() ([]string, error) {
 }
 
 func (diskdb *diskKVStore) Close() error {
+	if diskdb.db == nil {
+		return errors.New("Database has already been closed")
+	}
+
+	diskdb.Lock()
+	defer diskdb.Unlock()
+
 	delete(dbMap, diskdb.name)
 	diskdb.db = nil
 
