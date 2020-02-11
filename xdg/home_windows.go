@@ -30,7 +30,11 @@ func getHomedirContainer() string {
 	// is generally safe.
 	homedrive := env.GetenvDefault("HOMEDRIVE", "C:")
 	if homedrive != "" {
-		return pathutils.SanitizePath(filepath.Join(homedrive, "Users"))
+		homedir, err := pathutils.SanitizePath(filepath.Join(homedrive, "Users"))
+		if err != nil {
+			return ""
+		}
+		return homedir
 	}
 
 	return ""
